@@ -27,6 +27,7 @@ is a bit outdated regarding [Configuration](#configuration) but still can be use
       - [OCI_SUBNET_ID and OCI_IMAGE_ID](#oci_subnet_id-and-oci_image_id)
       - [OCI_SSH_PUBLIC_KEY (SSH access)](#oci_ssh_public_key-ssh-access)
     - [Optional](#optional)
+    - [Altenative way from oci cli](#altenative-way-from-oci-cli)
 - [Running the script](#running-the-script)
 - [Periodic job setup (cron)](#periodic-job-setup-cron)
   - [Linux / WSL](#linux--wsl)
