@@ -27,7 +27,7 @@ is a bit outdated regarding [Configuration](#configuration) but still can be use
       - [OCI_SUBNET_ID and OCI_IMAGE_ID](#oci_subnet_id-and-oci_image_id)
       - [OCI_SSH_PUBLIC_KEY (SSH access)](#oci_ssh_public_key-ssh-access)
     - [Optional](#optional)
-    - [Altenative way from oci cli](#altenative-way-from-oci-cli)
+    - [Altenative way from oci cli web shell](#altenative-way-from-oci-cli-web-shell)
 - [Running the script](#running-the-script)
 - [Periodic job setup (cron)](#periodic-job-setup-cron)
   - [Linux / WSL](#linux--wsl)
@@ -168,6 +168,171 @@ OCI_AVAILABILITY_DOMAIN=FeVO:EU-FRANKFURT-1-AD-2
 If you don't have instances of selected shape at all, and need only one, leave the value of `OCI_MAX_INSTANCES=1`. 
 When you managed to launch one and need more (or 2 from scratch), set to `OCI_MAX_INSTANCES=2`. 
 
+#### Altenative way from OCI CLI Web Shell
+Obtain ocid 
+After logging in to OCI Console, click profile icon and then click on "oracle idendity cloud service"
+insert img here
+
+Click on ```View Configure file ``` and copy the tenancy ocid from the user information for reserved 
+insert img here
+
+Open up the cloud shell next to the notification 
+ insert img here
+
+Run the Export command to abstract the copied tenancy ocid into C 
+```export C=ocid1.tenancy.oc1..aaaaaaaakpx***mpa```
+
+List out the availability domain with this command
+```oci iam availability-domain list --all --compartment-id=$C```
+ 
+Output will be similiar with this 
+```
+{
+  "data": [
+    ...
+    {
+      "compartment-id": "ocid1.tenancy.oc1..aaaaaaaakpx***mpa",
+      "id": "ocid1.availabilitydomain.oc1..aaaaaaaalcd***m2q",
+      "name": "FeVO:EU-FRANKFURT-1-AD-2"
+    },
+    ...
+  ]
+}
+```
+Copy the availability domain from the  ``` name``` for reserved  
+ 
+The shape we want to use is ```VM.Standard.A1.Flex``` ,but you can also list out all available shapes from your account with this command 
+
+```oci compute shape list --compartment-id=$C
+```
+the output will look like this 
+```
+{
+  "data": [
+    ...
+    {
+      "baseline-ocpu-utilizations": null,
+      "gpu-description": null,
+      "gpus": 0,
+      "is-live-migration-supported": false,
+      "local-disk-description": null,
+      "local-disks": 0,
+      "local-disks-total-size-in-gbs": null,
+      "max-vnic-attachment-options": {
+        "default-per-ocpu": 1.0,
+        "max": 24.0,
+        "min": 2
+      },
+      "max-vnic-attachments": 2,
+      "memory-in-gbs": 6.0,
+      "memory-options": {
+        "default-per-ocpu-in-g-bs": 6.0,
+        "max-in-g-bs": 512.0,
+        "max-per-ocpu-in-gbs": 64.0,
+        "min-in-g-bs": 1.0,
+        "min-per-ocpu-in-gbs": 1.0
+      },
+      "min-total-baseline-ocpus-required": null,
+      "networking-bandwidth-in-gbps": 1.0,
+      "networking-bandwidth-options": {
+        "default-per-ocpu-in-gbps": 1.0,
+        "max-in-gbps": 40.0,
+        "min-in-gbps": 1.0
+      },
+      "ocpu-options": {
+        "max": 80.0,
+        "min": 1.0
+      },
+      "ocpus": 1.0,
+      "processor-description": "3.0 GHz Ampere\u00ae Altra\u2122",
+      "shape": "VM.Standard.A1.Flex"
+    },
+    ...
+  ]
+}
+```
+ 
+####### Subnet ID
+List out the all the subnet with this command
+```oci network subnet list --compartment-id=$C```
+The output will looks similar like this and locate the public subnet that you had been created before and copy the "id" from the output 
+``` {
+  "data": [
+    {
+      "availability-domain": null,
+      "cidr-block": "10.0.0.0/24",
+      "compartment-id": "ocid1.tenancy.oc1..aaaaaaaakpx***mpa",
+      "defined-tags": {
+        "Oracle-Tags": {
+          "CreatedBy": "***",
+          "CreatedOn": "2021-01-26T13:51:31.332Z"
+        }
+      },
+      "dhcp-options-id": "ocid1.dhcpoptions.oc1.eu-frankfurt-1.aaaaaaaafh4***cvq",
+      "display-name": "subnet-20210126-1549",
+      "dns-label": "subnet01261551",
+      "freeform-tags": {},
+      "id": "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaahbb***faq",
+      "ipv6-cidr-block": null,
+      "ipv6-virtual-router-ip": null,
+      "lifecycle-state": "AVAILABLE",
+      "prohibit-internet-ingress": false,
+      "prohibit-public-ip-on-vnic": false,
+      "route-table-id": "ocid1.routetable.oc1.eu-frankfurt-1.aaaaaaaaqwe***p76q",
+      "security-list-ids": [
+        "ocid1.securitylist.oc1.eu-frankfurt-1.aaaaaaaaagnn***tca"
+      ],
+      "subnet-domain-name": "subnet***.vcn***.oraclevcn.com",
+      "time-created": "2021-01-26T13:51:31.534000+00:00",
+      "vcn-id": "ocid1.vcn.oc1.eu-frankfurt-1.amaaaaaalox***y4a",
+      "virtual-router-ip": "10.0.0.1",
+      "virtual-router-mac": "00:00:17:***"
+    }
+  ]
+}
+```
+ 
+ ####### Image Id
+list the all the available image for the shape we choose from your account with this command 
+```oci compute image list  --compartment-id=$C --shape=VM.Standard.A1.Flex```
+The output will be similar like this
+```
+{
+  "data": [
+    ...
+    {
+      "agent-features": null,
+      "base-image-id": null,
+      "billable-size-in-gbs": 14,
+      "compartment-id": null,
+      "create-image-allowed": true,
+      "defined-tags": {},
+      "display-name": "Oracle-Linux-Cloud-Developer-8.4-aarch64-2021.06.18-0",
+      "freeform-tags": {},
+      "id": "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa23zlxgcvdgb2zn4ffik6rda4g5daa5wa42svsgp4enljv4ywv6wa",
+      "launch-mode": "NATIVE",
+      "launch-options": {
+        "boot-volume-type": "PARAVIRTUALIZED",
+        "firmware": "UEFI_64",
+        "is-consistent-volume-naming-enabled": true,
+        "is-pv-encryption-in-transit-enabled": true,
+        "network-type": "PARAVIRTUALIZED",
+        "remote-data-volume-type": "PARAVIRTUALIZED"
+      },
+      "lifecycle-state": "AVAILABLE",
+      "listing-type": null,
+      "operating-system": "Oracle Linux Cloud Developer",
+      "operating-system-version": "8",
+      "size-in-mbs": 51200,
+      "time-created": "2021-06-24T20:36:22.659000+00:00"
+    },
+    ...
+  ]
+},
+```
+Copy the os image id from ```id```  that you want to deploy for reserved
+
+![User Settings](images/user-settings.png)
 ## Running the script
 
 ```bash
