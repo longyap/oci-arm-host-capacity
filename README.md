@@ -203,8 +203,7 @@ Copy the availability domain from the  ``` name``` for reserved
  
 The shape we want to use is ```VM.Standard.A1.Flex``` ,but you can also list out all available shapes from your account with this command 
 
-```oci compute shape list --compartment-id=$C
-```
+```oci compute shape list --compartment-id=$C```
 the output will look like this 
 ```
 {
@@ -252,7 +251,7 @@ the output will look like this
 }
 ```
  
-####### Subnet ID
+##### Subnet ID
 List out the all the subnet with this command
 ```oci network subnet list --compartment-id=$C```
 The output will looks similar like this and locate the public subnet that you had been created before and copy the "id" from the output 
@@ -292,7 +291,7 @@ The output will looks similar like this and locate the public subnet that you ha
 }
 ```
  
- ####### Image Id
+ ##### Image Id
 list the all the available image for the shape we choose from your account with this command 
 ```oci compute image list  --compartment-id=$C --shape=VM.Standard.A1.Flex```
 The output will be similar like this
